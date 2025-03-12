@@ -24,13 +24,6 @@ import re
 #from pyzhuyin import pinyin_to_zhuyin  #, zhuyin_to_pinyin
 
 ## Web/App Libraries ##
-from flask import Flask
 
-app = Flask(__name__)
-
-@app.route("/")
-def hello():
-    return "Hello Flask!"
 
 if __name__ == "__main__":
-    app.run()
