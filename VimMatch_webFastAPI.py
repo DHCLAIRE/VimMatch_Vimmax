@@ -24,6 +24,12 @@ import re
 #from pyzhuyin import pinyin_to_zhuyin  #, zhuyin_to_pinyin
 
 ## Web/App Libraries ##
+from fastapi import FastAPI
 
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"Hello": "FastAPI"}
 
 if __name__ == "__main__":
