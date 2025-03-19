@@ -145,7 +145,7 @@ if __name__ == "__main__":
         time.sleep(5)  # Wait for the page to load
     
         # Scroll down to load more exhibitors (modify if needed)
-        for _ in range(560):  # Adjust range based on number of exhibitors
+        for _ in range(5):  # Adjust range based on number of exhibitors >> Test the 200 first(failed) 50(failed)
             driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
             time.sleep(2)
     
