@@ -32,53 +32,56 @@ from pdf2image import convert_from_path
 import cv2
 import pytesseract
 
+
+def extract_text(pdf_path):
+    """
+    Function to extract text from PDF
+    """
+    doc = fitz.open(pdf_path)
+    text = ""
+    for page in doc:
+        text += page.get_text("text") + "\n"
+    return text
+
+def extract_graphs(pdf_path, output_folder="graphs"):
+    """
+    Function to extract graphs (images) from PDF
+    """
+    images = convert_from_path(pdf_path)
+    os.makedirs(output_folder, exist_ok=True)
+
+    for i, image in enumerate(images):
+        img_path = os.path.join(output_folder, f"page_{i+1}.png")
+        image.save(img_path, "PNG")
+
+        # Read image using OpenCV
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+
+        # Apply edge detection
+        edges = cv2.Canny(img, 50, 150)
+
+        # Find contours (potential graphs)
+        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        for j, cnt in enumerate(contours):
+            x, y, w, h = cv2.boundingRect(cnt)
+            if w > 100 and h > 100:  # Filter small contours
+                graph = img[y:y+h, x:x+w]
+                cv2.imwrite(os.path.join(output_folder, f"graph_{i+1}_{j+1}.png"), graph)
+
+    print(f"Graphs saved in {output_folder}")
+
 if __name__ == "__main__":
     pdf_datapath = Path("/Users/ting-hsin/Downloads/Vimmax/wetransfer_vimmax-catalogue_2025-03-05_0616")
     
     with open (pdf_datapath / "VIMMAX_ TABLEWARE_DOUBLE WALL STAINLESS STEEL SERIES_CATALOGUE_01_V1-3.pdf") as pdf_catlog:
-        
 
-        
-        # Function to extract text from PDF
-        def extract_text(pdf_path):
-            doc = fitz.open(pdf_path)
-            text = ""
-            for page in doc:
-                text += page.get_text("text") + "\n"
-            return text
-        
-        # Function to extract graphs (images) from PDF
-        def extract_graphs(pdf_path, output_folder="graphs"):
-            images = convert_from_path(pdf_path)
-            os.makedirs(output_folder, exist_ok=True)
-        
-            for i, image in enumerate(images):
-                img_path = os.path.join(output_folder, f"page_{i+1}.png")
-                image.save(img_path, "PNG")
-        
-                # Read image using OpenCV
-                img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-        
-                # Apply edge detection
-                edges = cv2.Canny(img, 50, 150)
-        
-                # Find contours (potential graphs)
-                contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-                for j, cnt in enumerate(contours):
-                    x, y, w, h = cv2.boundingRect(cnt)
-                    if w > 100 and h > 100:  # Filter small contours
-                        graph = img[y:y+h, x:x+w]
-                        cv2.imwrite(os.path.join(output_folder, f"graph_{i+1}_{j+1}.png"), graph)
-        
-            print(f"Graphs saved in {output_folder}")
-        
-        # Example Usage
-        pdf_file = "sample.pdf"
-        text = extract_text(pdf_file)
-        print("Extracted Text:\n", text)
-        
-        extract_graphs(pdf_file)
+    # Example Usage
+    pdf_file = "sample.pdf"
+    text = extract_text(pdf_file)
+    print("Extracted Text:\n", text)
+    
+    extract_graphs(pdf_file)
     
     
     
