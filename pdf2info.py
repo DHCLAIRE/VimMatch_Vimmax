@@ -76,12 +76,12 @@ if __name__ == "__main__":
     
     with open (pdf_datapath / "VIMMAX_ TABLEWARE_DOUBLE WALL STAINLESS STEEL SERIES_CATALOGUE_01_V1-3.pdf") as pdf_catlog:
 
-    # Example Usage
-    pdf_file = "sample.pdf"
-    text = extract_text(pdf_file)
-    print("Extracted Text:\n", text)
-    
-    extract_graphs(pdf_file)
+        # Example Usage
+        pdf_file = pdf_catlog #"sample.pdf"
+        text = extract_text(pdf_file)
+        print("Extracted Text:\n", text)
+        
+        #extract_graphs(pdf_file)
     
     
     
