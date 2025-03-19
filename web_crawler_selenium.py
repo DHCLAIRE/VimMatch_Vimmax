@@ -17,6 +17,7 @@ from pathlib import Path
 
 ## NLP Libraries ##
 import re
+import string
 #from gtts import gTTS
 #import nltk
 #from nltk import sent_tokenize
@@ -37,6 +38,101 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 if __name__ == "__main__":
+    
+    # Set up Selenium WebDriver
+    options = Options()
+    options.add_argument("--headless")  # Run in the background (no browser window)
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    
+    # Producing the alphabet (so that we can get the exhibitors according to the alphabet)
+    #uppercase_alphabetLIST = [''.join(chr(i) for i in range(ord('A'), ord('Z') + 1))]
+    uppercase_alphabetLIST = []
+    for i in range(ord('A'), ord('Z') + 1):
+        uppercase_alphabetLIST.append(chr(i))
+    print(uppercase_alphabetLIST)
+    print(type(uppercase_alphabetLIST))
+    # Add special items, modify if needed
+    uppercase_alphabetLIST.append("0")  # this is for #, which is represented as 0 in the url
+    print(uppercase_alphabetLIST)
+    
+    # URL of the exhibitor directory (Change for each site)
+    #urls = [
+        #"https://ambiente.messefrankfurt.com/frankfurt/en/exhibitor-search.html?location=3.1%2C11.1",
+        #"https://directory.nationalrestaurantshow.com/8_0/explore/exhibitor-gallery.cfm?featured=false"
+        #"https://directory.nationalrestaurantshow.com/8_0/explore/exhibitor-gallery.cfm?featured=false&alpha=0" # let's try starting from alphabet
+    #]
+    ## Modified web scrapper for NRA
+    for chrSTR in uppercase_alphabetLIST[-1]:
+        NRAurl_STR = "https://directory.nationalrestaurantshow.com/8_0/explore/exhibitor-gallery.cfm?featured=false&alpha=%s" %chrSTR
+        print(NRAurl_STR)
+        time.sleep(7)   # Wait for the page to load
+        
+        all_exhibitors = []
+    #for url in urls:
+        driver.get(NRAurl_STR)
+        time.sleep(5)  # Wait for the page to load
+    
+        # Scroll down to load more exhibitors (modify if needed)
+        #for _ in range(1):  # Adjust range based on number of exhibitors >> Test the 200 first(failed) 50(failed)
+        driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
+        time.sleep(2)
+    
+        # Extract exhibitor names (modify based on website structure)
+        exhibitors = driver.find_elements(By.TAG_NAME, "%s" %chrSTR)  # Adjust tag if needed
+    
+        for exhibitor in exhibitors:
+            name = exhibitor.text.strip()
+            print(name)
+            if name:
+                all_exhibitors.append({"Exhibitor Name": name})
+    
+        # Save data to CSV
+        df = pd.DataFrame(all_exhibitors)
+        df.to_csv("exhibitors_list_%s.csv" %chrSTR, index=False)
+        
+        print("✅ Data saved to exhibitors_list%s.csv" %chrSTR)
+    
+        # Close the browser
+        driver.quit()
+    
+    ## Below is the GPT-produced code the could work ##
+    """
+    all_exhibitors = []
+
+    for url in urls:
+        driver.get(url)
+        time.sleep(5)  # Wait for the page to load
+    
+        # Scroll down to load more exhibitors (modify if needed)
+    
+        #while driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END):
+        for _ in range(1):  # Adjust range based on number of exhibitors >> Test the 200 first(failed) 50(failed)
+            driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
+            time.sleep(2)
+        
+            # Extract exhibitor names (modify based on website structure)
+            exhibitors = driver.find_elements(By.TAG_NAME, "h3")  # Adjust tag if needed
+        
+            for exhibitor in exhibitors:
+                name = exhibitor.text.strip()
+                print(name)
+                if name:
+                    all_exhibitors.append({"Exhibitor Name": name})
+    
+    # Save data to CSV
+    df = pd.DataFrame(all_exhibitors)
+    df.to_csv("exhibitors_list_#.csv", index=False)
+    
+    print("✅ Data saved to exhibitors_list.csv")
+    
+    # Close the browser
+    driver.quit()
+    """
+    
+    
+    
     """
     # Set up Selenium WebDriver
     options = Options()
@@ -110,7 +206,7 @@ if __name__ == "__main__":
         booth = exhibitor.find_element(By.CLASS_NAME, "booth-number").text.strip()
         website = exhibitor.find_element(By.CLASS_NAME, "website-link").get_attribute("href")
     
-        data.append({"Name": name, "Booth": booth, "Website": website})
+            data.append({"Name": name, "Booth": booth, "Website": website})
     
     print(data)
     
@@ -124,46 +220,3 @@ if __name__ == "__main__":
     # Close the browser
     driver.quit()    
     """
-    
-    # Set up Selenium WebDriver
-    options = Options()
-    options.add_argument("--headless")  # Run in the background (no browser window)
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    
-    # URL of the exhibitor directory (Change for each site)
-    urls = [
-        "https://ambiente.messefrankfurt.com/frankfurt/en/exhibitor-search.html?location=3.1%2C11.1",
-        #"https://directory.nationalrestaurantshow.com/8_0/explore/exhibitor-gallery.cfm?featured=false"
-    ]
-    
-    all_exhibitors = []
-    
-    for url in urls:
-        driver.get(url)
-        time.sleep(5)  # Wait for the page to load
-    
-        # Scroll down to load more exhibitors (modify if needed)
-        for _ in range(5):  # Adjust range based on number of exhibitors >> Test the 200 first(failed) 50(failed)
-            driver.find_element(By.TAG_NAME, "body").send_keys(Keys.END)
-            time.sleep(2)
-    
-        # Extract exhibitor names (modify based on website structure)
-        exhibitors = driver.find_elements(By.TAG_NAME, "h3")  # Adjust tag if needed
-    
-        for exhibitor in exhibitors:
-            name = exhibitor.text.strip()
-            print(name)
-            if name:
-                all_exhibitors.append({"Exhibitor Name": name})
-    
-    # Save data to CSV
-    df = pd.DataFrame(all_exhibitors)
-    df.to_csv("exhibitors_list.csv", index=False)
-    
-    print("✅ Data saved to exhibitors_list.csv")
-    
-    # Close the browser
-    driver.quit()
-    
