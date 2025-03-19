@@ -29,6 +29,11 @@ if __name__ == "__main__":
     with open (pdf_datapath / "VIMMAX_ TABLEWARE_DOUBLE WALL STAINLESS STEEL SERIES_CATALOGUE_01_V1-3.pdf") as pdf_catlog:
         
         
+    
+    
+    
+    
+    """   OLD Command >> Trying new ones(above)
     ### Step-by-Step: Easiest Ways to Extract Everything
     
     #### 1. Extracting Text (Selectable Text in PDFs)
@@ -44,10 +49,10 @@ if __name__ == "__main__":
             for page in pdf.pages:
                 text = page.extract_text()
                 print(f"Page {page.page_number}: {text}")
-        """
-        - **Why it’s easy:** `pdfplumber` handles text extraction well, preserves layout, and is beginner-friendly.
-        - **Bonus:** It can also extract tables with `page.extract_tables()`.
-        """
+        
+        #- **Why it’s easy:** `pdfplumber` handles text extraction well, preserves layout, and is beginner-friendly.
+        #- **Bonus:** It can also extract tables with `page.extract_tables()`.
+        
     
     #- **Alternative with `PyPDF2`:**
         #```python
@@ -181,4 +186,4 @@ if __name__ == "__main__":
         text = pytesseract.image_to_string(image)
         print(f"OCR text (Page {i + 1}): {text}")
     #```
-        
+    """
